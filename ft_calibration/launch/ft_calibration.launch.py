@@ -13,9 +13,9 @@ def generate_launch_description():
     )
 
     ft_test_node = Node(
-        package="ft_calib_comp",
-        executable="ft_test.py",
-        name="ft_test",
+        package="ft_calibration",
+        executable="ft_calibration_node",
+        name="ft_calibration",
         output="screen",
     )
 

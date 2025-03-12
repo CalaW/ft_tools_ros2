@@ -6,16 +6,21 @@ import rclpy.subscription
 from geometry_msgs.msg import WrenchStamped
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
 
 SAMPLE_NUM = 1000
 
 
-class FtTest(Node):
+class FTCalibrationNode(Node):
     def __init__(self) -> None:
         super().__init__("ft_test")
         self.buffer: list[WrenchStamped] = []
         self.timer = self.create_timer(2, self.trigger_sample)
         self.sub = None
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
     def ft_callback(self, msg: WrenchStamped) -> None:
         self.buffer.append(msg)
@@ -58,9 +63,9 @@ class FtTest(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    ft_test = FtTest()
-    rclpy.spin(ft_test)
-    ft_test.destroy_node()
+    node = FTCalibrationNode()
+    rclpy.spin(node)
+    node.destroy_node()
     rclpy.shutdown()
 
 
