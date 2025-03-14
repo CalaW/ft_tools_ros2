@@ -25,6 +25,9 @@ setup(
     license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={
-        "console_scripts": ["ft_calibration_node = ft_calibration.ft_calibration_node:main"],
+        "console_scripts": [
+            "ft_sampler_node = ft_calibration.ft_sampler_node:main",
+            "ft_calibration_gui = ft_calibration.ft_calibration_gui:main",
+        ],
     },
 )

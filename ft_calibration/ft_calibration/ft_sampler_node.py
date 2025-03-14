@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from typing import Callable
+
 import numpy as np
 import rclpy
 import rclpy.subscription
@@ -13,14 +15,17 @@ from tf2_ros.transform_listener import TransformListener
 SAMPLE_NUM = 1000
 
 
-class FTCalibrationNode(Node):
+class FTSamplerNode(Node):
     def __init__(self) -> None:
         super().__init__("ft_test")
         self.buffer: list[WrenchStamped] = []
-        self.timer = self.create_timer(2, self.trigger_sample)
         self.sub = None
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.sample_callback: Callable | None = None
+
+    def set_sample_callback(self, sample_callback: Callable):
+        self.sample_callback = sample_callback
 
     def ft_callback(self, msg: WrenchStamped) -> None:
         self.buffer.append(msg)
@@ -40,30 +45,30 @@ class FTCalibrationNode(Node):
                 qos_profile_sensor_data,
             )
 
-    def finish_sample(self):
+    def finish_sample(self) -> None:
         self.get_logger().info("finished sampling")
-        mean = np.mean(
-            np.array(
-                [
-                    (
-                        msg.wrench.force.x,
-                        msg.wrench.force.y,
-                        msg.wrench.force.z,
-                        msg.wrench.torque.x,
-                        msg.wrench.torque.y,
-                        msg.wrench.torque.z,
-                    )
-                    for msg in self.buffer
-                ]
-            ),
-            axis=0,
+        samples = np.array(
+            [
+                (
+                    msg.wrench.force.x,
+                    msg.wrench.force.y,
+                    msg.wrench.force.z,
+                    msg.wrench.torque.x,
+                    msg.wrench.torque.y,
+                    msg.wrench.torque.z,
+                )
+                for msg in self.buffer
+            ]
         )
-        self.get_logger().info(f"{mean}")
+        mean = np.mean(samples, axis=0)
+        if self.sample_callback:
+            self.sample_callback(mean)
 
 
 def main(args=None):
     rclpy.init(args=args)
-    node = FTCalibrationNode()
+    node = FTSamplerNode()
+    node.timer = node.create_timer(3, node.trigger_sample)
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
