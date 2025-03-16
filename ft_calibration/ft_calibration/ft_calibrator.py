@@ -1,6 +1,20 @@
 from pathlib import Path
+from typing import NamedTuple
 
 import numpy as np
+
+
+class Vector3(NamedTuple):
+    x: float
+    y: float
+    z: float
+
+
+class CalibrationResult(NamedTuple):
+    mass: float
+    cog: Vector3
+    f_bias: Vector3
+    t_bias: Vector3
 
 
 class FTCalibrator:
@@ -15,8 +29,8 @@ class FTCalibrator:
         添加测量数据
 
         参数:
-          gravity: np.array，包含3个元素，顺序为 [gx, gy, gz]
-          ft_raw:  np.array，包含6个元素，顺序为 [fx, fy, fz, tx, ty, tz]
+            gravity: np.array，包含3个元素，顺序为 [gx, gy, gz]
+            ft_raw:  np.array，包含6个元素，顺序为 [fx, fy, fz, tx, ty, tz]
 
         注意: 假定用户已经完成坐标系的转换工作。
         """
@@ -32,12 +46,21 @@ class FTCalibrator:
             self.H = h
             self.Z = z
 
-    def get_calibration(self) -> np.ndarray:
+    def get_calibration(self) -> CalibrationResult:
+        res = self.get_calibration_raw()
+        return CalibrationResult(
+            mass=res[0],
+            cog=Vector3(x=res[1], y=res[2], z=res[3]),
+            f_bias=Vector3(res[4], res[5], res[6]),
+            t_bias=Vector3(res[7], res[8], res[9]),
+        )
+
+    def get_calibration_raw(self) -> np.ndarray:
         """
         利用最小二乘法求解校准参数
 
         返回:
-          一个包含10个校准参数的 np.array
+            一个包含10个校准参数的 np.array
         """
         if self.num_meas == 0:
             raise ValueError("没有可用的测量数据进行校准")
@@ -50,13 +73,13 @@ class FTCalibrator:
         根据给定的重力向量构造测量矩阵 H
 
         参数:
-          gravity: np.array，包含3个元素，顺序为 [gx, gy, gz]
+            gravity: np.array，包含3个元素，顺序为 [gx, gy, gz]
 
         返回:
-          H: 一个 6x10 的 np.array
+            H: 一个 6x10 的 np.array
 
         说明:
-          为了与原始代码保持一致，角速度 w、角加速度 alpha 以及加速度 a 均设置为零向量。
+            为了与原始代码保持一致，角速度 w、角加速度 alpha 以及加速度 a 均设置为零向量。
         """
         # 将输入转换为1维数组
         g = gravity.flatten()  # [gx, gy, gz]

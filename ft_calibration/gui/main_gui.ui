@@ -89,7 +89,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="forceBiasyLabel">
+            <widget class="QLabel" name="forceBiasYLabel">
              <property name="text">
               <string>0</string>
              </property>
