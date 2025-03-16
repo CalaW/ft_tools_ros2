@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from typing import Callable
+from typing import Callable, NamedTuple
 
 import numpy as np
 import rclpy
@@ -13,6 +13,11 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 
 SAMPLE_NUM = 1000
+
+
+class SampleResult(NamedTuple):
+    ft_mean: np.ndarray
+    gravity: np.ndarray  # in Newton, length should be g
 
 
 class FTSamplerNode(Node):
@@ -62,7 +67,7 @@ class FTSamplerNode(Node):
         )
         mean = np.mean(samples, axis=0)
         if self.sample_callback:
-            self.sample_callback(mean)
+            self.sample_callback(SampleResult(ft_mean=mean, gravity=np.array([0, 1, 0])))
 
 
 def main(args=None):
