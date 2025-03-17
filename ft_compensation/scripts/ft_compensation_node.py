@@ -7,7 +7,7 @@ from builtin_interfaces.msg import Time
 from ft_compensation import FTCompensator
 from geometry_msgs.msg import Vector3, Vector3Stamped, WrenchStamped
 from rclpy.node import Node
-from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import qos_profile_sensor_data, qos_profile_system_default
 from std_msgs.msg import Header
 from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
@@ -20,16 +20,16 @@ class FTCompensationNode(Node):
 
         calib_params = np.array(
             [
-                0.47623183521135465,
-                -0.00041899723931493327,
-                -0.0005572845786021574,
-                0.04241625174721376,
-                -3.632659850281348,
-                -9.21982189209215,
-                2.9150709092032887,
-                -0.19825460420788116,
-                -0.045504989075480506,
-                -0.2513034824363129,
+                -0.6808681364695239,
+                -0.0007039575712726176,
+                0.0010365292746074284,
+                -0.0757526200201236,
+                -0.03745466131196212,
+                -0.04386771661018282,
+                -6.752788407036707,
+                0.00734601382527324,
+                -0.0015608840790269486,
+                0.006534742397436891,
             ]
         )
         self.compensator = FTCompensator(calib_params)
@@ -48,6 +48,9 @@ class FTCompensationNode(Node):
             vector=Vector3(x=0, y=0, z=-g),
         )
         self.ft_frame = "ati_sensing_frame"
+        self.publisher = self.create_publisher(
+            WrenchStamped, "/wrench_compensated", qos_profile_system_default
+        )
 
     def callback(self, msg: WrenchStamped):
         raw_ft = np.array(
@@ -63,7 +66,9 @@ class FTCompensationNode(Node):
         try:
             g_in_ft = self.tf_buffer.transform(self.gravity, self.ft_frame)
         except TransformException as ex:
-            self.get_logger().warn(f"Failed to transform gravity: {ex}", throttle_duration_sec=1)
+            self.get_logger().warn(
+                f"Failed to transform gravity: {ex}", throttle_duration_sec=1, skip_first=True
+            )
             return
         gravity = np.array([g_in_ft.vector.x, g_in_ft.vector.y, g_in_ft.vector.z])
         compensated_force, compensated_torque = self.compensator.compensate(raw_ft, gravity)

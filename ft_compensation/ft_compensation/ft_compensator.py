@@ -3,7 +3,7 @@ import numpy as np
 
 class FTCompensator:
     def __init__(self, calib_params: np.ndarray | None = None) -> None:
-        if calib_params and calib_params.shape != (10,):
+        if calib_params is not None and calib_params.shape != (10,):
             raise ValueError("calib_params should be of shape (10,)")
         self.params = calib_params
 

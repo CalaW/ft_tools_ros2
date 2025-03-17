@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from threading import Thread
 from time import localtime, strftime
 
@@ -40,6 +41,7 @@ class FTCalibrationGUI(QMainWindow):
 
         self.node.set_sample_callback(self.sample_callback)
         self.ui.sampleButton.clicked.connect(lambda: self.node.trigger_sample())
+        self.ui.saveButton.clicked.connect(lambda: self.save_calibration())
 
         self.sample_received.connect(self._process_sample)
 
@@ -59,6 +61,13 @@ class FTCalibrationGUI(QMainWindow):
             f"  Torque: [{ft_mean[3]:.6f}, {ft_mean[4]:.6f}, {ft_mean[5]:.6f}]\n"
             f"  Gravity: [{gravity[0]:.6f}, {gravity[1]:.6f}, {gravity[2]:.6f}]\n"
         )
+
+    def save_calibration(self):
+        # create .ros if not exist
+        if not (Path.home() / ".ros").exists():
+            (Path.home() / ".ros").mkdir()
+        self.calibrator.save_calibration(Path.home() / ".ros" / "ft_calibration.yaml")
+        self.calibrator.save_sample_data(Path.home() / ".ros" / "ft_calibration_samples.txt")
 
     def _update_result_display(self, result: CalibrationResult):
         self.ui.massLabel.setText(f"{result.mass:.3f}")
