@@ -11,7 +11,6 @@ from geometry_msgs.msg import Vector3, Vector3Stamped, WrenchStamped
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Header
-from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 
