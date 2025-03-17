@@ -11,6 +11,7 @@ from geometry_msgs.msg import Vector3, Vector3Stamped, WrenchStamped
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Header
+from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 
@@ -66,7 +67,11 @@ class FTSamplerNode(Node):
     def finish_sample(self) -> None:
         start = time.perf_counter()
         # self.gravity.header.stamp = self.get_clock().now().to_msg()
-        g_in_ft = self.tf_buffer.transform(self.gravity, self.ft_frame)
+        try:
+            g_in_ft = self.tf_buffer.transform(self.gravity, self.ft_frame)
+        except TransformException as ex:
+            self.get_logger().error(f"tf failed{ex}")
+            return
         end = time.perf_counter()
         self.get_logger().info(
             f"tf took {end - start} seconds, {g_in_ft.vector.x}, {g_in_ft.vector.y}, {g_in_ft.vector.z}"

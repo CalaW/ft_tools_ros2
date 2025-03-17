@@ -16,10 +16,17 @@ class CalibrationResult(NamedTuple):
     t_bias: Vector3
 
 
+measurement_type = list[tuple[np.ndarray, np.ndarray]]
+
+
 class FTCalibrator:
-    def __init__(self):
+    def __init__(self) -> None:
         # Use a list to store sample data, each element is (gravity, ft_raw)
-        self.measurements = []
+        self._measurements: measurement_type = []
+
+    @property
+    def measurements(self) -> measurement_type:
+        return self._measurements
 
     def add_measurement(self, gravity: np.ndarray, ft_raw: np.ndarray) -> None:
         """
@@ -33,7 +40,7 @@ class FTCalibrator:
         ft_raw = np.asarray(ft_raw).flatten()
         if gravity.shape != (3,) or ft_raw.shape != (6,):
             raise ValueError("gravity must have 3 elements, ft_raw must have 6 elements")
-        self.measurements.append((gravity, ft_raw))
+        self._measurements.append((gravity, ft_raw))
 
     def delete_measurement(self, index: int) -> None:
         """
@@ -42,9 +49,9 @@ class FTCalibrator:
         Parameters:
             index: Index of the data to be deleted (starting from 0)
         """
-        if index < 0 or index >= len(self.measurements):
+        if index < 0 or index >= len(self._measurements):
             raise IndexError("Measurement data index out of range")
-        del self.measurements[index]
+        del self._measurements[index]
 
     def get_calibration(self) -> CalibrationResult:
         """
@@ -53,7 +60,7 @@ class FTCalibrator:
         Returns:
             CalibrationResult object, including mass, center of gravity, force bias, and torque bias
         """
-        res = self.get_calibration_raw()
+        res = tuple(map(float, self.get_calibration_raw()))
         return CalibrationResult(
             mass=res[0],
             cog=Vector3(x=res[1], y=res[2], z=res[3]),
@@ -61,21 +68,21 @@ class FTCalibrator:
             t_bias=Vector3(x=res[7], y=res[8], z=res[9]),
         )
 
-    def get_calibration_raw(self):
+    def get_calibration_raw(self) -> np.ndarray:
         """
         Perform calibration calculation on all measurement data using least squares method
 
         Returns:
             np.array containing 10 calibration parameters
         """
-        if not self.measurements:
+        if not self._measurements:
             raise ValueError("No measurement data available for calibration")
 
         H_list = []
         Z_list = []
-        for gravity, ft_raw in self.measurements:
+        for gravity, ft_raw in self._measurements:
             H_list.append(self._get_measurement_matrix(gravity))
-            Z_list.append(ft_raw.flatten())
+            Z_list.append(ft_raw)
         H = np.vstack(H_list)
         Z = np.concatenate(Z_list)
         # Solve the least squares solution of H * params = Z
@@ -131,3 +138,43 @@ class FTCalibrator:
         H[5, 2] = -a[0] + g[0]
 
         return H
+
+    def save_calibration(self, filename: str) -> None:
+        """
+        Save the calibration result to a file
+
+        Parameters:
+            filename: Path to save the calibration result
+        """
+        calib_params = self.get_calibration()
+        data_str = (
+            f"mass: {calib_params.mass}\n"
+            f"cog:\n"
+            f"  - {calib_params.cog.x}\n"
+            f"  - {calib_params.cog.y}\n"
+            f"  - {calib_params.cog.z}\n"
+            f"f_bias:\n"
+            f"  - {calib_params.f_bias.x}\n"
+            f"  - {calib_params.f_bias.y}\n"
+            f"  - {calib_params.f_bias.z}\n"
+            f"t_bias:\n"
+            f"  - {calib_params.t_bias.x}\n"
+            f"  - {calib_params.t_bias.y}\n"
+            f"  - {calib_params.t_bias.z}\n"
+        )
+        with open(filename, "w") as f:
+            f.write(data_str)
+
+    def save_sample_data(self, filename: str) -> None:
+        """
+        Save the sample data to a file
+
+        Parameters:
+            filename: Path to save the sample data
+        """
+        data_str = "\n".join(
+            f"{' '.join(map(str, gravity))} {' '.join(map(str, ft_raw))}"
+            for gravity, ft_raw in self._measurements
+        )
+        with open(filename, "w") as f:
+            f.write(data_str)
