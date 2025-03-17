@@ -32,16 +32,17 @@ class FTCalibrationGUI(QMainWindow):
         self.sample_received.emit(sample)  # should return immediately
 
     def _process_sample(self, sample: SampleResult):
-        self.ui.sampleList.addItem(self.sample_display_format(sample.ft_mean))
+        self.ui.sampleList.addItem(self.sample_display_format(sample.ft_mean, sample.gravity))
         self.calibrator.add_measurement(sample.gravity, sample.ft_mean)
         result = self.calibrator.get_calibration()
         self._update_result_display(result)
 
-    def sample_display_format(self, ft_mean: np.ndarray):
+    def sample_display_format(self, ft_mean: np.ndarray, gravity: np.ndarray):
         return (
-            f"{strftime('%H:%M:%S', localtime())}\n"
+            f"\n{strftime('%H:%M:%S', localtime())}\n"
             f"  Force: [{ft_mean[0]:.6f}, {ft_mean[1]:.6f}, {ft_mean[2]:.6f}]\n"
-            f"  Torque: [{ft_mean[3]:.6f}, {ft_mean[4]:.6f}, {ft_mean[5]:.6f}]"
+            f"  Torque: [{ft_mean[3]:.6f}, {ft_mean[4]:.6f}, {ft_mean[5]:.6f}]\n"
+            f"  Gravity: [{gravity[0]:.6f}, {gravity[1]:.6f}, {gravity[2]:.6f}]\n"
         )
 
     def _update_result_display(self, result: CalibrationResult):

@@ -12,11 +12,31 @@ def generate_launch_description():
         )
     )
 
-    ft_test_node = Node(
+    ur_driver = IncludeLaunchDescription(
+        PathJoinSubstitution(
+            [FindPackageShare("ur_robot_driver"), "launch", "ur_control.launch.py"]
+        ),
+        launch_arguments={
+            "robot_ip": "192.168.50.3",
+            # "robot_ip": "192.168.56.101",
+            "ur_type": "ur5",
+            "description_launchfile": PathJoinSubstitution(
+                [FindPackageShare("ortho_bringup"), "launch", "ortho_ur_rsp.launch.py"]
+            ),
+        }.items(),
+    )
+
+    ft_calibration_gui = Node(
         package="ft_calibration",
-        executable="ft_calibration_node",
-        name="ft_calibration",
+        executable="ft_calibration_gui",
+        name="ft_calibration_gui",
         output="screen",
     )
 
-    return LaunchDescription([ft_bringup, ft_test_node])
+    return LaunchDescription(
+        [
+            ft_bringup,
+            ft_calibration_gui,
+            ur_driver,
+        ]
+    )
