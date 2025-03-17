@@ -64,7 +64,7 @@ def test_calib():
         calib.add_measurement(gravity, ft_raw)
 
     # 执行最小二乘校准
-    params = calib.get_calibration()
+    params = calib.get_calibration_raw()
 
     assert np.allclose(
         params,
