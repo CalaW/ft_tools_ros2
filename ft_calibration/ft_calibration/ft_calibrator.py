@@ -33,8 +33,8 @@ class FTCalibrator:
         Add measurement data
 
         Parameters:
-            gravity: np.array, contains 3 elements [gx, gy, gz]
-            ft_raw:  np.array, contains 6 elements [fx, fy, fz, tx, ty, tz]
+            gravity: np.array, contains 3 elements [gx, gy, gz], in sensor frame
+            ft_raw:  np.array, contains 6 elements [fx, fy, fz, tx, ty, tz], in sensor frame
         """
         gravity = np.asarray(gravity).flatten()
         ft_raw = np.asarray(ft_raw).flatten()
@@ -107,9 +107,7 @@ class FTCalibrator:
 
         H = np.zeros((6, 10))
         # first three rows, columns 4 to 9 filled with identity matrix
-        H[:3, 4:10] = np.eye(6)[:3]
-        # last three rows, columns 4 to 9 filled with identity matrix
-        H[3:6, 4:10] = np.eye(6)[3:6]
+        H[:6, 4:10] = np.eye(6)
         # dynamic parameters of the first three rows: a - g (a is a zero vector, so it is -g)
         H[:3, 0] = -g
 
