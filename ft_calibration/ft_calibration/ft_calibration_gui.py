@@ -16,13 +16,28 @@ from ft_calibration.ft_sampler_node import SampleResult
 class FTCalibrationGUI(QMainWindow):
     sample_received = pyqtSignal(object)
 
-    def __init__(self, node: FTSamplerNode):
+    def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.calibrator = FTCalibrator()
+        self.node = None
+        def spin_node():
+            rclpy.init()
+            self.node = FTSamplerNode()
+            try:
+                rclpy.spin(self.node)
+            except KeyboardInterrupt:
+                pass
+            finally:
+                self.node.destroy_node()
+                rclpy.shutdown()
+            
+        Thread(target=spin_node, daemon=True).start()
 
-        self.node = node
+        while self.node is None:
+            pass
+
         self.node.set_sample_callback(self.sample_callback)
         self.ui.sampleButton.clicked.connect(lambda: self.node.trigger_sample())
 
@@ -59,26 +74,11 @@ class FTCalibrationGUI(QMainWindow):
 
 
 def main(args=None):
-    rclpy.init(args=args)
-
-    sampler_node = FTSamplerNode()
-    executor = MultiThreadedExecutor()
-    executor.add_node(sampler_node)
-    thread = Thread(target=executor.spin)
-    thread.start()
-
     app = QApplication(sys.argv)
-    window = FTCalibrationGUI(sampler_node)
+    window = FTCalibrationGUI()
 
-    try:
-        window.show()
-        sys.exit(app.exec())
-    finally:
-        sampler_node.get_logger().info("shutting down node")
-        sampler_node.destroy_node()  # close node
-        executor.shutdown()
-        rclpy.shutdown()  # close rclpy
-        thread.join()
+    window.show()
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

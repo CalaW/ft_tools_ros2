@@ -16,7 +16,7 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 
 # TODO parameterize
-SAMPLE_NUM = 1000
+SAMPLE_NUM = 500
 
 
 class SampleResult(NamedTuple):
@@ -38,7 +38,7 @@ class FTSamplerNode(Node):
             header=Header(frame_id="world", stamp=Time(sec=0, nanosec=0)),
             vector=Vector3(x=0, y=0, z=-g),
         )
-        self.ft_frame = "ati_sensing_frame"
+        self.ft_frame = "tool0"
 
     # def init_callback(self) -> None:
     #     self.tf_buffer.can_transform("world", self.ft_frame, 0)
@@ -54,12 +54,13 @@ class FTSamplerNode(Node):
             self.finish_sample()
 
     def trigger_sample(self) -> None:
-        self.get_logger().info("Started sampling")
+        print("trigger sample")
+        # self.get_logger().info("Started sampling")
         self.buffer.clear()
         if self.sub is None:
             self.sub = self.create_subscription(
                 WrenchStamped,
-                "ft/force_torque_sensor_broadcaster/wrench",
+                "/force_torque_sensor_broadcaster/wrench",
                 self.ft_callback,
                 qos_profile_sensor_data,
             )
