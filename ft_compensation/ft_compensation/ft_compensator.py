@@ -42,10 +42,10 @@ class FTCompensator:
             raise ValueError("raw_ft must have 6 elements and gravity must have 3 elements.")
 
         # Compute the gravity contribution for force:
-        F_external = raw_ft[:3] + gravity * self.params[0] - self.params[4:7]
+        F_external = raw_ft[:3] - gravity * self.params[0] - self.params[4:7]
 
         # Compute the gravity (and coupling) contribution for torque:
-        T_external = raw_ft[3:6] - np.cross(gravity, self.params[1:4]) - self.params[7:10]
+        T_external = raw_ft[3:6] + np.cross(gravity, self.params[1:4]) - self.params[7:10]
 
         return F_external, T_external
 
@@ -54,16 +54,16 @@ class FTCompensator:
 if __name__ == "__main__":
     calib_params = np.array(
         [
-            0.47623183521135465,
-            -0.00041899723931493327,
-            -0.0005572845786021574,
-            0.04241625174721376,
-            -3.632659850281348,
-            -9.21982189209215,
-            2.9150709092032887,
-            -0.19825460420788116,
-            -0.045504989075480506,
-            -0.2513034824363129,
+            0.22104759770403495,
+            -0.0032747385584455547,
+            0.010676750816640376,
+            0.016699021919783855,
+            -1.309558217510769,
+            0.45788615632623775,
+            -0.9142683299465202,
+            -0.047194978688311774,
+            0.015930736755664362,
+            0.05790141946217533,
         ]
     )
 
@@ -72,10 +72,10 @@ if __name__ == "__main__":
 
     # Example raw force-torque measurement:
     # Order: [Fx, Fy, Fz, Mx, My, Mz] (Force in N, Torque in Nm)
-    raw_ft = np.array([-0.809967, -5.49514, 1.66939, -0.523497, 0.235421, -0.252396])
+    raw_ft = np.array([-6.1552960698711185, 0.4452811623127104, 7.625624891031465, -2.634983399999999, 0.605953984, 0.1568889519999999])
 
     # Example gravity vector (m/s²)
-    gravity = np.array([-6.93651, -6.93688, 0.0241249])
+    gravity = np.array([1.64327159, -1.25199357,  9.59000889])
 
     # Compute the compensated external force and torque
     F_external, T_external = compensator.compensate(raw_ft, gravity)

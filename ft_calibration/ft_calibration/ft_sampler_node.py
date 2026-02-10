@@ -38,7 +38,7 @@ class FTSamplerNode(Node):
             header=Header(frame_id="world", stamp=Time(sec=0, nanosec=0)),
             vector=Vector3(x=0, y=0, z=-g),
         )
-        self.ft_frame = "tool0"
+        self.ft_frame = "ati_measuring_face"
 
     # def init_callback(self) -> None:
     #     self.tf_buffer.can_transform("world", self.ft_frame, 0)
@@ -60,7 +60,7 @@ class FTSamplerNode(Node):
         if self.sub is None:
             self.sub = self.create_subscription(
                 WrenchStamped,
-                "/force_torque_sensor_broadcaster/wrench",
+                "/ft/force_torque_sensor_broadcaster/wrench",
                 self.ft_callback,
                 qos_profile_sensor_data,
             )
@@ -78,6 +78,7 @@ class FTSamplerNode(Node):
             f"tf took {end - start} seconds, {g_in_ft.vector.x}, {g_in_ft.vector.y}, {g_in_ft.vector.z}"
         )
         gravity = np.array([g_in_ft.vector.x, g_in_ft.vector.y, g_in_ft.vector.z])
+        self.get_logger().info(f"gravity in ft frame: {gravity}")
 
         self.get_logger().info("finished sampling")
         samples = np.array(

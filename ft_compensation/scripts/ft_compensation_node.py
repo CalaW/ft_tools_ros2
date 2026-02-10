@@ -20,16 +20,16 @@ class FTCompensationNode(Node):
 
         calib_params = np.array(
             [
-                -0.7147164109845708,
-                -0.0023656503775906224,
-                0.002063801888379846,
-                -0.07547002236171929,
-                -4.231229871271786,
-                -17.360797200002057,
-                -2.1268356610763117,
-                -0.30679040538030355,
-                -0.07342696457150463,
-                -0.13059380474514581,
+                0.22480970501961553,
+                -0.0005320286584545384,
+                0.01658117037638992,
+                -0.0008887406076092384,
+                -1.8874986050789053,
+                0.595118032611465,
+                -0.019601869960869017,
+                0.0091289690757148,
+                0.05064764776170809,
+                0.08568122301994983,
             ]
         )
         self.compensator = FTCompensator(calib_params)
@@ -47,7 +47,7 @@ class FTCompensationNode(Node):
             header=Header(frame_id="world", stamp=Time(sec=0, nanosec=0)),
             vector=Vector3(x=0, y=0, z=-g),
         )
-        self.ft_frame = "ati_sensing_frame"
+        self.ft_frame = "ati_measuring_face"
         self.publisher = self.create_publisher(
             WrenchStamped, "/wrench_compensated", qos_profile_system_default
         )

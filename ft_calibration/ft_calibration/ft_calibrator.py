@@ -54,18 +54,20 @@ class FTCalibrator:
         del self._measurements[index]
 
     def get_calibration(self) -> CalibrationResult:
-        """
-        Get calibration result
+        res = np.asarray(self.get_calibration_raw(), dtype=float)
 
-        Returns:
-            CalibrationResult object, including mass, center of gravity, force bias, and torque bias
-        """
-        res = tuple(map(float, self.get_calibration_raw()))
+        m = float(res[0])
+        if abs(m) < 1e-12:
+            raise ValueError("Estimated mass is ~0; cannot compute CoG.")
+
+        p = res[1:4]          # p = m*c
+        c = p / m             # c = p/m
+
         return CalibrationResult(
-            mass=res[0],
-            cog=Vector3(x=res[1], y=res[2], z=res[3]),
-            f_bias=Vector3(x=res[4], y=res[5], z=res[6]),
-            t_bias=Vector3(x=res[7], y=res[8], z=res[9]),
+            mass=m,
+            cog=Vector3(x=float(c[0]), y=float(c[1]), z=float(c[2])),
+            f_bias=Vector3(x=float(res[4]), y=float(res[5]), z=float(res[6])),
+            t_bias=Vector3(x=float(res[7]), y=float(res[8]), z=float(res[9])),
         )
 
     def get_calibration_raw(self) -> np.ndarray:
@@ -99,41 +101,29 @@ class FTCalibrator:
         Returns:
             H: 6x10 np.array
         """
-        g = np.asarray(gravity).flatten()
-        # w, alpha, a are all zero vectors
-        w = np.zeros(3)
-        alpha = np.zeros(3)
-        a = np.zeros(3)
+        g = np.asarray(gravity, dtype=float).reshape(3)
 
-        H = np.zeros((6, 10))
-        # first three rows, columns 4 to 9 filled with identity matrix
-        H[:6, 4:10] = np.eye(6)
-        # dynamic parameters of the first three rows: a - g (a is a zero vector, so it is -g)
-        H[:3, 0] = -g
+        def skew(v: np.ndarray) -> np.ndarray:
+            x, y, z = v
+            return np.array(
+                [
+                    [0.0, -z,  y],
+                    [z,  0.0, -x],
+                    [-y, x,  0.0],
+                ],
+                dtype=float,
+            )
 
-        # rotational coupling terms of the first three rows
-        # (since w and alpha are zero, mainly keep the structure consistent)
-        H[0, 1] = -(w[1] ** 2) - w[2] ** 2
-        H[0, 2] = w[0] * w[1] - alpha[2]
-        H[0, 3] = w[0] * w[2] + alpha[1]
+        H = np.zeros((6, 10), dtype=float)
 
-        H[1, 1] = w[0] * w[1] + alpha[2]
-        H[1, 2] = -(w[0] ** 2) - w[2] ** 2
-        H[1, 3] = w[1] * w[2] - alpha[0]
+        # Force: F = m*g + f_bias
+        H[0:3, 0] = g
+        H[0:3, 4:7] = np.eye(3)
 
-        H[2, 1] = w[0] * w[2] - alpha[1]
-        H[2, 2] = w[1] * w[2] + alpha[0]
-        H[2, 3] = -(w[1] ** 2) - w[0] ** 2
-
-        # cross-coupling terms of the last three rows
-        H[3, 2] = a[2] - g[2]
-        H[3, 3] = -a[1] + g[1]
-
-        H[4, 1] = -a[2] + g[2]
-        H[4, 3] = a[0] - g[0]
-
-        H[5, 1] = a[1] - g[1]
-        H[5, 2] = -a[0] + g[0]
+        # Torque: tau = (p x g) + t_bias, where p = m*c
+        # p x g = -skew(g) @ p
+        H[3:6, 1:4] = -skew(g)
+        H[3:6, 7:10] = np.eye(3)
 
         return H
 

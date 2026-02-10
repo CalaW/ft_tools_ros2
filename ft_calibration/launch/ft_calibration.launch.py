@@ -8,22 +8,14 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     ft_bringup = IncludeLaunchDescription(
         PathJoinSubstitution(
-            [FindPackageShare("ortho_bringup"), "launch", "net_ft_broadcaster.launch.py"]
+            [FindPackageShare("net_ft_driver"), "launch", "net_ft_broadcaster.launch.py"]
         )
     )
 
     ur_driver = IncludeLaunchDescription(
         PathJoinSubstitution(
-            [FindPackageShare("ur_robot_driver"), "launch", "ur_control.launch.py"]
-        ),
-        launch_arguments={
-            "robot_ip": "192.168.50.3",
-            # "robot_ip": "192.168.56.101",
-            "ur_type": "ur5",
-            "description_launchfile": PathJoinSubstitution(
-                [FindPackageShare("ortho_bringup"), "launch", "ortho_ur_rsp.launch.py"]
-            ),
-        }.items(),
+            [FindPackageShare("dental_bringup"), "launch", "ur_control.launch.py"]
+        )
     )
 
     ft_calibration_gui = Node(
