@@ -21,8 +21,7 @@ Python package for collecting samples and estimating FT sensor calibration param
 - `~/.ros/ft_calibration_samples.txt` (raw sample set)
 
 **Launch**
-- `ros2 launch ft_calibration ft_calibration.launch.py`
-  - Includes launch files from `net_ft_driver` and `dental_bringup`. These packages must be in your workspace.
+- `ros2 launch ft_calibration ft_calibration.launch.py` (includes launch files from `net_ft_driver` and `dental_bringup`; these packages must be in your workspace)
 
 ### `ft_compensation`
 Compensates raw FT measurements using calibration parameters and gravity.
@@ -41,8 +40,10 @@ Compensates raw FT measurements using calibration parameters and gravity.
 
 ## Build
 
+Replace `humble` with your ROS 2 distribution.
+
 ```bash
-source /opt/ros/<ros-distro>/setup.bash
+source /opt/ros/humble/setup.bash
 colcon build --packages-select ft_calibration ft_compensation
 source install/setup.bash
 ```
