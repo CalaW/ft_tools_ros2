@@ -14,7 +14,7 @@ Python package for collecting samples and estimating FT sensor calibration param
 **Topics / frames**
 - Subscribes to: `/ft/force_torque_sensor_broadcaster/wrench`
 - Requires TF from `world` to `ati_measuring_face`
-- Assumes gravity vector `[0, 0, -9.81]` m/s² (negative Z) in the `world` frame
+- Assumes gravity vector `[0, 0, -9.81]` m/s² (negative Z; 9.81 is the constant used in code) in the `world` frame
 - Gravity vector and frame IDs are currently hardcoded in `ft_sampler_node.py` (`g`, `gravity.header.frame_id`, and `ft_frame`) and must be changed in code if your setup differs.
 
 **Outputs**
@@ -68,6 +68,9 @@ ros2 run ft_calibration ft_sampler_node
 ros2 run ft_compensation ft_compensation_node
 ros2 run ft_compensation ft_compensation_node.py
 ```
+
+## Limitations
+- Gravity, frame IDs, and output paths are hardcoded today. Consider making these configurable via ROS parameters or launch arguments in a future update.
 
 ## Dependencies
 - ROS 2 (`rclcpp`, `rclpy`)
