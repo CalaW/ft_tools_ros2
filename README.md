@@ -14,8 +14,7 @@ Python package for collecting samples and estimating FT sensor calibration param
 **Topics / frames**
 - Subscribes to: `/ft/force_torque_sensor_broadcaster/wrench`
 - Requires TF from `world` to `ati_measuring_face`
-- Assumes gravity vector `[0, 0, -9.81]` m/s² (negative Z) in the `world` frame
-- Uses `g = 9.81` m/s² in code; adjust this constant if your application requires a different value
+- Assumes gravity vector `[0, 0, -9.81]` in the `world` frame (magnitude 9.81 m/s², negative Z)
 - Hardcoded defaults in `ft_sampler_node.py`:
   - `g = 9.81` m/s²
   - `gravity_frame_id = "world"` (stored in `gravity.header.frame_id`)
@@ -25,7 +24,7 @@ Python package for collecting samples and estimating FT sensor calibration param
 **Outputs**
 - `~/.ros/ft_calibration.yaml` (estimated mass, center of gravity, force/torque bias; path is hardcoded in `ft_calibration_gui.py`)
 - `~/.ros/ft_calibration_samples.txt` (raw sample set; path is hardcoded in `ft_calibration_gui.py`)
-- Note: despite ROS 2 conventions that may use `~/.ros2`, the current GUI writes to `~/.ros`; update `ft_calibration_gui.py` if you need a different path.
+- Note: despite ROS 2 conventions that may use `~/.ros2`, the current GUI writes to `~/.ros`. Update `ft_calibration_gui.py` if you need a different path.
 - These output paths are not configurable via parameters currently and require code changes.
 
 **Launch**
