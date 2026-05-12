@@ -32,7 +32,7 @@ Compensates raw FT measurements using calibration parameters and gravity.
 - `ft_compensation_node.py` (Python node that applies gravity compensation)
 
 **Topics / frames (Python node)**
-- Subscribes to: `ft/force_torque_sensor_broadcaster/wrench`
+- Subscribes to: `/ft/force_torque_sensor_broadcaster/wrench`
 - Publishes: `/wrench_compensated`
 - Requires TF from `world` to `ati_measuring_face`
 
