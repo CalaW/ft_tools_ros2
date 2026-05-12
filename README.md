@@ -28,7 +28,7 @@ Python package for collecting samples and estimating FT sensor calibration param
 - These output paths are not configurable via parameters currently and require code changes.
 
 **Launch**
-- `ros2 launch ft_calibration ft_calibration.launch.py` (includes launch files from `net_ft_driver` and `dental_bringup`; these packages must be in your workspace)
+- `ros2 launch ft_calibration ft_calibration.launch.py` (requires `net_ft_driver` and `dental_bringup`; these are not needed when running the nodes directly)
 
 ### `ft_compensation`
 Compensates raw FT measurements using calibration parameters and gravity.
@@ -80,7 +80,7 @@ ros2 run ft_compensation ft_compensation_node.py
 
 ## Limitations
 - Gravity, frame IDs, and output paths are hardcoded today. Consider making these configurable via ROS parameters or launch arguments in a future update.
-- The GUI writes outputs to `~/.ros` (ROS 1-style) instead of the ROS 2 `~/.ros2` convention.
+- The GUI writes outputs to `~/.ros` (ROS 1-style), which deviates from ROS 2 best practices and may confuse users expecting the `~/.ros2` convention.
 
 ## Dependencies
 - ROS 2 (`rclcpp`, `rclpy`)
