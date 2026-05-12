@@ -14,12 +14,13 @@ Python package for collecting samples and estimating FT sensor calibration param
 **Topics / frames**
 - Subscribes to: `/ft/force_torque_sensor_broadcaster/wrench`
 - Requires TF from `world` to `ati_measuring_face`
-- Assumes gravity vector `[0, 0, -9.81]` m/s² in the `world` frame
-- Gravity vector and frame IDs are currently hard-coded in `ft_sampler_node.py` and must be changed in code if your setup differs.
+- Assumes gravity vector `[0, 0, -9.81]` m/s² (negative Z) in the `world` frame
+- Gravity vector and frame IDs are currently hard-coded in `ft_sampler_node.py` (`g`, `gravity.header.frame_id`, and `ft_frame`) and must be changed in code if your setup differs.
 
 **Outputs**
-- `~/.ros/ft_calibration.yaml` (estimated mass, center of gravity, force/torque bias; path is hard-coded in the GUI)
-- `~/.ros/ft_calibration_samples.txt` (raw sample set; path is hard-coded in the GUI)
+- `~/.ros/ft_calibration.yaml` (estimated mass, center of gravity, force/torque bias; path is hard-coded in `ft_calibration_gui.py`)
+- `~/.ros/ft_calibration_samples.txt` (raw sample set; path is hard-coded in `ft_calibration_gui.py`)
+- These output paths are not configurable via parameters today and require code changes.
 
 **Launch**
 - `ros2 launch ft_calibration ft_calibration.launch.py` (includes launch files from `net_ft_driver` and `dental_bringup`; these packages must be in your workspace)
@@ -35,7 +36,7 @@ Compensates raw FT measurements using calibration parameters and gravity.
 - Subscribes to: `/ft/force_torque_sensor_broadcaster/wrench`
 - Publishes: `/wrench_compensated`
 - Requires TF from `world` to `ati_measuring_face`
-- Gravity vector and frame IDs are currently hard-coded in `ft_compensation_node.py` and must be changed in code if your setup differs.
+- Gravity vector and frame IDs are currently hard-coded in `ft_compensation_node.py` (`g`, `gravity.header.frame_id`, and `ft_frame`) and must be changed in code if your setup differs.
 
 **Library**
 - `FTCompensator` in `ft_compensation/ft_compensator.py` performs the gravity/bias compensation.
