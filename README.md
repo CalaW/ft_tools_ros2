@@ -14,8 +14,8 @@ Python package for collecting samples and estimating FT sensor calibration param
 **Topics / frames**
 - Subscribes to: `/ft/force_torque_sensor_broadcaster/wrench`
 - Requires TF from `world` to `ati_measuring_face`
-- Assumes gravity vector `[0, 0, -9.81]` m/s² (negative Z; the code uses `g = 9.81`, adjust if you prefer standard gravity) in the `world` frame
-- Gravity vector and frame IDs are currently hardcoded in `ft_sampler_node.py` (defaults: `g = 9.81`, `gravity.header.frame_id = "world"`, `ft_frame = "ati_measuring_face"`) and must be changed in code if your setup differs.
+- Assumes gravity vector `[0, 0, -9.81]` m/s² (negative Z; the code uses `g = 9.81`, adjust this constant in the code if your application requires a different value) in the `world` frame
+- Gravity vector and frame IDs are currently hardcoded in `ft_sampler_node.py` (defaults: `g = 9.81`, `gravity_frame_id = "world"` stored in `gravity.header.frame_id`, `ft_frame = "ati_measuring_face"`) and must be changed in code if your setup differs.
 
 **Outputs**
 - `~/.ros/ft_calibration.yaml` (estimated mass, center of gravity, force/torque bias; path is hardcoded in `ft_calibration_gui.py`)
@@ -36,7 +36,7 @@ Compensates raw FT measurements using calibration parameters and gravity.
 - Subscribes to: `/ft/force_torque_sensor_broadcaster/wrench`
 - Publishes: `/wrench_compensated`
 - Requires TF from `world` to `ati_measuring_face`
-- Gravity vector and frame IDs are currently hardcoded in `ft_compensation_node.py` (defaults: `g = 9.81`, `gravity.header.frame_id = "world"`, `ft_frame = "ati_measuring_face"`) and must be changed in code if your setup differs.
+- Gravity vector and frame IDs are currently hardcoded in `ft_compensation_node.py` (defaults: `g = 9.81`, `gravity_frame_id = "world"` stored in `gravity.header.frame_id`, `ft_frame = "ati_measuring_face"`) and must be changed in code if your setup differs.
 
 **Library**
 - `FTCompensator` in `ft_compensation/ft_compensator.py` performs the gravity/bias compensation.
