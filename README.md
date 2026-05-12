@@ -14,7 +14,7 @@ Python package for collecting samples and estimating FT sensor calibration param
 **Topics / frames**
 - Subscribes to: `/ft/force_torque_sensor_broadcaster/wrench`
 - Requires TF from `world` to `ati_measuring_face`
-- Assumes gravity vector `[0, 0, -9.81]` in the `world` frame
+- Assumes gravity vector `[0, 0, -9.81]` m/s² in the `world` frame
 
 **Outputs**
 - `~/.ros/ft_calibration.yaml` (estimated mass, center of gravity, force/torque bias)
@@ -72,6 +72,7 @@ ros2 run ft_compensation ft_compensation_node.py
 - `tf2_ros`
 - `numpy`
 - `PyQt5` (for the calibration GUI)
+- `net_ft_driver` and `dental_bringup` (required to run `ft_calibration.launch.py`)
 
 ## License
 Apache-2.0
